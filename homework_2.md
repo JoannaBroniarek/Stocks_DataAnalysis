@@ -1,10 +1,8 @@
----
-title: "Homework 2: Stock, Dependency and Graphs"
-author: "Joanna Broniarek and Guilherme Vescovi Nicchio"
-date: "December 3, 2018"
-output: html_document
----
+# Stock, Dependency and Graphs"
+Joanna Broniarek and Guilherme Vescovi Nicchio
+December 3, 2018
 
+------------------------------------
 ```{r setup, include=FALSE, echo=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 
@@ -22,7 +20,7 @@ For studing the dependency among stocks, we collected the daily closing prices f
 
 We decided to carry out the analysis for the following seven sectors: 
 
-```{r}
+```r
 GICS <- c("Energy", "Financials", "Industrials", 
           "Information Technology", "Materials", "Real Estate", "Utilities")
 ```
@@ -30,7 +28,7 @@ GICS <- c("Energy", "Financials", "Industrials",
 
 Data on stocks and symobols in the form of csv table was downloaded from: [https://en.wikipedia.org/wiki/List_of_S%26P_500_companies](https://en.wikipedia.org/wiki/List_of_S%26P_500_companies). Then, we converted data into the 'Date' type and selected the dataset of stocks from 1 January 2003 on.
 
-```{r}
+```r
 all.stocks <- read.csv(file="table-1.csv",  stringsAsFactors = FALSE)
 all.stocks = mutate(all.stocks, data_first= as.Date(Date.first.added.3..4., format= "%Y-%m-%d"))
 indx = which(all.stocks$Date.first.added.3..4. >= 2003-01-01)
@@ -49,7 +47,7 @@ The number of days 1258 was the most common through all stocks. It is worth to m
 
 After these procedure we collected data from 27 stocks.
 
-```
+```r
 merged_stocks <- array(NA, dim = c(1258,0))
 
 for (sector in GICS){
@@ -82,7 +80,7 @@ First step in the analysis was transforming the data frame into a numeric matrix
 In order to build a matrix **X** where each element corresponds to:
 $$ x_{t,j} = log(\frac{c_{t, j}}{c_{t-1, j}}),$$
 we created two auxiliary matrices M1, M2 shifted one day in rows.
-```{r}
+```r
 merged_stocks <- read.csv("merged_stocks.csv")
 M <- as.matrix(sapply(merged_stocks, as.numeric))
 M <- M[,-1]
@@ -93,12 +91,12 @@ X <- log(M1/M2)
 #### **The implementation of the bootstrap procedure to build the marginal correlation graps**
 
 Generate the Pearson Correlation Coefficient Matrix between stocks:
-```{r}
+```r
 Cor_M <- cor(X)
 ```
 
 Next, set the size of the bootstrap simulation and started sampling with the replacement the M matrices from the X matrix (log matrix defined on the previous step), saving all the results.
-```{r}
+```r
 B <- 1000
 
 corr.boot <- list()
@@ -113,13 +111,13 @@ for (b in 1:B){
 For each bootstrap sample $m \in{1, ..., M}$, we defined a simultaneous test statistics:
 $$ \bigtriangleup_m = \sqrt{n} * max_{j,k} \mid \hat{R_m^*}[j,k] - \hat{R}[j, k]\mid ,$$
 
-``` {r}
+``` r
 delta_vec <- rep(NA, B)
 for (b in 1:B)  delta_vec[b] <- sqrt(nrow(X)) * max(abs(corr.boot[[b]] - Cor_M))
 ```
 
 and its Empirical CDF. For n and M large enough, the ECDF( $\hat F_n$) is a good estimation of the True CDF ($F_n$).
-```{r}
+```r
 F_hat <- ecdf(delta_vec)
 plot(F_hat, main=" Empirical CDF", col = "orange", xlab = "Stocks Data", cex = 0.25, lwd = 2)
 ```
@@ -129,7 +127,7 @@ Then, we calculated the value of
 $$t_{\alpha} = \hat{F}_n^{-1}(1-\alpha),$$
 and build the confidence set
 $$ C_{j, k}(\alpha) = [\hat{R}[j,k]\pm \frac{t_{\alpha}}{\sqrt{n}}].$$
-```{r}
+```r
 alpha <- 0.05
 t_alpha <- quantile(delta_vec, c(1-alpha))
 Conf_set <- list( Cor_M - (t_alpha/sqrt(nrow(X))), Cor_M + (t_alpha/sqrt(nrow(X))))
@@ -139,7 +137,7 @@ Conf_set <- list( Cor_M - (t_alpha/sqrt(nrow(X))), Cor_M + (t_alpha/sqrt(nrow(X)
 
 The function **build_edges** builds and returns the graph according to the distance matrix and epsilon value.
 
-```{r}
+```r
 build_edges <- function(epsilon, Conf_set){
   #creating a matrix of of ones
   ones_mat <- matrix(1, nrow = ncol(X), ncol = ncol(X))
@@ -162,7 +160,7 @@ return(g)}
 
 Then, color the nodes/stocks according to theirs GICS sector. 
 
-```{r}
+```r
 color_vector = distinctColorPalette(k = 7)
 
 # During saving and reading data from file the name for "BRK.B" changed to "BRK-B", so we used "if-else" for this case
@@ -178,7 +176,7 @@ legend_vector <- c("Energy", "Financials", "Industrials",
 
 In order to plot different graphs, it was created the function with all options already set.
 
-```{r}
+```r
 plot_MC_graph <- function(epsilon, dist_matrix){
   graph1 <- build_edges(epsilon=epsilon, Conf_set=dist_matrix)
   
@@ -195,7 +193,7 @@ To check the dynamic of the graph according to the epsilon, it was tested some v
 
 Note: In all graphs in this project the stocks names were not displayed, as we don't want to pay attention to particular stocks but for how the **sectors** are correlated.
 
-```{r}
+```r
 plot_MC_graph(epsilon = 0.15, dist_matrix = Conf_set)
 plot_MC_graph(epsilon = 0.25, dist_matrix = Conf_set)
 plot_MC_graph(epsilon = 0.30, dist_matrix = Conf_set)
@@ -250,7 +248,7 @@ The dcov.test() function uses the following parameters:
 
 Where the x and y are stock i and j, the value of R equal to 200 and index 0.001 have demonstrated a good output for this test.
 
-```{r, cache=TRUE}
+```r
 # empty matrix
 distance_cov_matrix <- matrix(0, nrow = ncol(X), ncol = ncol(X), dimnames = dimnames(X))
 
@@ -269,7 +267,7 @@ The null hypothesis $H_0$ is that Stock $i$ and Stock $j$ are independent. More 
 
 Accordingly to the p-value threshold of 0.01, let's place an edge on the Covariance Distance Matrix where p-values smaller than 0.01 will be considered as edges, meaning that they are not independent.
 
-```{r}
+```r
 g2 <- make_undirected_graph(c(), n = ncol(X)) #a graph with no edges
   
   # go through the covariance matrix and place an edge at g2 if pvalue is smaller than 0.01
@@ -279,7 +277,7 @@ for (i in 2:ncol(X)){
 
 **Plotting the results**
 
-```{r}
+```r
 plot(g2, vertex.color = sector_colors_vector, vertex.size = 14, vertex.label = NA, 
        layout = layout_nicely, main=paste("Distance Covariance Graph (without Bonferroni)"))
 
@@ -295,7 +293,7 @@ The decision rule based on this method is:
 where the $m$ parameter is the number of possible combinations between stocks.
 
 Performing the Bonferroni Correction.
-```{r}
+```r
 pval_length <- choose(ncol(X), 2)
 alpha <- 0.05
 
@@ -309,7 +307,7 @@ adj_matrix[which(distance_cov_matrix < t_bonf)] <- 1
 
 **Plotting the results**
 
-```{r}
+```r
 graph3 <- make_undirected_graph(c(), n = ncol(X)) #a graph with no edges
   
 #go through the adjusted matrix value and add an edge at graph 3 if the value if adj_matrix[i,k] == 1
@@ -330,7 +328,7 @@ legend(x=-2.5, y=-0.5, legend = legend_vector, pch = 19, col = color_vector)
 Now that was analysed how the stocks behave before the [Crisis of 2008](https://en.wikipedia.org/wiki/Subprime_mortgage_crisis) let's analyse for the period after the effects of the crisis were "already attenuated", from January 2013 to January 2018.
 
 **Downloading the data**
-```
+```r
 merged_stocks_2 <- array(NA, dim = c(2518,0))
 
 for (sector in GICS){
@@ -359,7 +357,7 @@ write.csv(merged_stocks_2, file="merged_stocks_2.csv")
 
 #### Repeating the previous proccess
 
-```{r}
+```r
 merged_stocks_2 <- read.csv("merged_stocks_2.csv")
 M <- as.matrix(sapply(merged_stocks_2, as.numeric))
 M <- M[,-1]
@@ -401,7 +399,7 @@ The function **build_edges** builds and returns the graph according to the dista
 
 
 Coloring stocks.
-```{r}
+```r
 color_vector = distinctColorPalette(k = 7)
 
 # During saving and reading data from file the name for "BRK.B" changed to "BRK-B", so we used "if-else" for this case
@@ -419,7 +417,7 @@ legend_vector <- c("Energy", "Financials", "Industrials",
 
 To check the dynamic of the graph according to the epsilon, it was tested some values, their graphs are displayed in the following plots.
 
-```{r}
+```r
 plot_MC_graph(epsilon = 0.25, dist_matrix = Conf_set)
 plot_MC_graph(epsilon = 0.35, dist_matrix = Conf_set)
 plot_MC_graph(epsilon = 0.45, dist_matrix = Conf_set)
@@ -438,27 +436,27 @@ Note: The coding was submited to repited tests and despite working as expected f
 
 
 #### **Building The Disctance Covariance Matrix** 
-```{r, cache=TRUE}
+```r
 distance_cov_matrix <- matrix(0, nrow = ncol(X), ncol = ncol(X), dimnames = dimnames(X))
 for (i in 1:nrow(distance_cov_matrix)) {
   for (j in 1:i) distance_cov_matrix[i,j] = dcov.test(X[,i], X[,j], R= 200)$p.value }
 ```
 
-```{r}
+```r
 g2 <- make_undirected_graph(c(), n = ncol(X)) #a graph with no edges
 for (i in 2:ncol(X)){
   for (k in 1:(i-1)) if (distance_cov_matrix[i,k] < 0.01) g2 = add.edges(g2,c(i,k)) }
 ```
 
 Distance Covarianve Graph without Bonferroni Correction:
-```{r}
+```r
 plot(g2, vertex.color = sector_colors_vector, vertex.size = 14, vertex.label = NA, 
      layout = layout_nicely, main=paste("Distance Covariance Graph (without Bonferroni)"))
 legend(x=-2.5, y=-0.5, legend = legend_vector, pch = 19, col = color_vector)
 ```
 
 Bonferroni Adjustment Graph:
-```{r}
+```r
 pval_length <- choose(ncol(X), 2)
 alpha <- 0.05
 t_bonf <- alpha/pval_length
