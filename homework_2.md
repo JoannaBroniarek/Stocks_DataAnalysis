@@ -1,9 +1,7 @@
 # Stock, Dependency and Graphs"
-Joanna Broniarek and Guilherme Vescovi Nicchio
 December 3, 2018
-
 ------------------------------------
-```{r setup, include=FALSE, echo=FALSE}
+```r
 knitr::opts_chunk$set(echo = TRUE)
 
 library(dplyr)
