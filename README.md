@@ -1,5 +1,8 @@
 # Stock, Dependency and Graphs
-**December 3, 2018**   Joanna Broniarek and Guilherme Vescovi Nicchio
+**December 3, 2018**
+
+Project for the course Statistics in Data Science.
+Authors: Joanna Broniarek and Guilherme Vescovi Nicchio
 
 ![sp500](https://www.avatrade.com/wp-content/uploads/2018/04/SP-500.jpg)
 
