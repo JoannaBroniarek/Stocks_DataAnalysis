@@ -1,7 +1,7 @@
 # Stock, Dependency and Graphs
-Joanna Broniarek and Guilherme Vescovi Nicchio
+**December 3, 2018**   Joanna Broniarek and Guilherme Vescovi Nicchio
 
-December 3, 2018
+![sp500](https://www.avatrade.com/wp-content/uploads/2018/04/SP-500.jpg)
 
 ## HTML preview.
 The whole analysis along with all generated graphs is available via: 
@@ -9,8 +9,8 @@ The whole analysis along with all generated graphs is available via:
 http://htmlpreview.github.io/?https://github.com/JoannaBroniarek/Stocks_DataAnalysis/blob/master/homework_2_realestate.html
 
 
-## Question: study the dependency among stocks via marginal correlation graphs
-The aim was to study the dependency among some standard measure of stock relative performance. Data was collected for the daily closing prices for D stocks, selected within those consistently in the S&P500 index from January 1, 2003 through today.
+## Study the dependency among stocks via marginal correlation graphs
+The aim was to study the dependency among some standard measure of stock relative performance. Data was collected for the daily closing prices for six stocks, selected within those consistently in the S&P500 index from January 1, 2003 through today.
 
 The stocks are categorized into 10 Global Industry Classification Standard sectors, including Consumer Discretionary,
 Energy, Financials, Consumer Staples, Telecommunications Services, Health Care, Industrials, Information
